@@ -5,11 +5,12 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.HeFengweather.hefengapplication.logic.Respository
 import com.qweather.sdk.bean.geo.GeoBean
+import com.qweather.sdk.bean.geo.GeoBean.LocationBean
 
 class PlaceViewModel : ViewModel() {
     private val searchLiveData = MutableLiveData<String>()
 
-    val placeList = ArrayList<GeoBean.LocationBean>()
+    var placeList = ArrayList<LocationBean>()
 
     val placeLiveData = Transformations.switchMap(searchLiveData){
         query -> Respository.searchPlaces(query)

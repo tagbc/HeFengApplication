@@ -15,10 +15,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.HeFengweather.hefengapplication.HeFengweatherApplication
 import com.HeFengweather.hefengapplication.MainActivity
 import com.HeFengweather.hefengapplication.R
 import com.HeFengweather.hefengapplication.ui.weather.WeatherActivity
+import com.google.gson.Gson
+import com.qweather.sdk.bean.base.Code
+import com.qweather.sdk.bean.base.Lang
+import com.qweather.sdk.bean.base.Unit
 import com.qweather.sdk.bean.geo.GeoBean
+import com.qweather.sdk.bean.weather.WeatherNowBean
+import com.qweather.sdk.view.QWeather
 
 class PlaceFragment : Fragment() {
     val viewModel by lazy { ViewModelProvider(this).get(PlaceViewModel::class.java) }
@@ -55,7 +62,7 @@ class PlaceFragment : Fragment() {
             val content = editable.toString()
             if(content.isNotEmpty())
             {
-                viewModel.searchPlaces(content)
+                searchPlace(content)
                 Log.d("Respository","123123")
             }
             else
@@ -68,7 +75,9 @@ class PlaceFragment : Fragment() {
             }
         }
 
-        viewModel.placeLiveData.observe(viewLifecycleOwner, Observer { result->
+
+
+//        viewModel.placeLiveData.observe(viewLifecycleOwner, Observer { result->
 //            val places = result.getOrNull()
 //            if(places != null)
 //            {
@@ -83,7 +92,44 @@ class PlaceFragment : Fragment() {
 //                Toast.makeText(activity,"未能查询到任何地点",Toast.LENGTH_SHORT).show()
 //                result.exceptionOrNull()?.printStackTrace()
 //            }
-            Log.d("Respository",result.toString())
-        })
+//            Log.d("Respository",result.toString())
+//        })
+    }
+    fun searchPlace(content : String)
+    {
+        val TAG = "Request of city"
+        QWeather.getGeoCityLookup(context,content,
+            object : QWeather.OnResultGeoListener {
+                override fun onError(e: Throwable) {
+                    Log.i(TAG, "getWeather onError: $e")
+                }
+
+                override fun onSuccess(geoBean : GeoBean?) {
+                    Log.i(TAG, "getWeather onSuccess: " + Gson().toJson(geoBean))
+                    //先判断返回的status是否正确，当status正确时获取数据，若status不正确，可查看status对应的Code值找到原因
+                    if (Code.OK == geoBean?.code) {
+                        val places = geoBean.locationBean
+                        if(places != null)
+                        {
+                            activity?.runOnUiThread{
+                                val recyclerView: RecyclerView = requireView().findViewById(R.id.recyclerView)
+                                recyclerView.visibility = View.VISIBLE
+                                val bgImageView : ImageView = requireView().findViewById(R.id.bgImageView)
+                                bgImageView.visibility = View.GONE
+                                viewModel.placeList.clear()
+                                viewModel.placeList.addAll(places)
+                                adapter.notifyDataSetChanged()
+                            }
+                        }else
+                        {
+                            Toast.makeText(activity,"未能查询到任何地点",Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        //在此查看返回数据失败的原因
+                        val code = geoBean?.code
+                        Log.i(TAG, "failed code: $code")
+                    }
+                }
+            })
     }
 }
