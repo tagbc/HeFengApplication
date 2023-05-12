@@ -40,17 +40,6 @@ class PlaceFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-//        if (activity is MainActivity && viewModel.isPlaceSaved()) {
-//            val place = viewModel.getSavedPlace()
-//            val intent = Intent(context, WeatherActivity::class.java).apply {
-//                putExtra("location_lng", place.location.lng)
-//                putExtra("location_lat", place.location.lat)
-//                putExtra("place_name", place.name)
-//            }
-//            startActivity(intent)
-//            activity?.finish()
-//            return
-//        }
 
         val layoutManager = LinearLayoutManager(activity)
         val recyclerView: RecyclerView = requireView().findViewById(R.id.recyclerView)
@@ -63,10 +52,10 @@ class PlaceFragment : Fragment() {
             if(content.isNotEmpty())
             {
                 searchPlace(content)
-                Log.d("Respository","123123")
             }
             else
             {
+                Log.d("recycleerView","1111")
                 recyclerView.visibility = View.GONE
                 val bgImageView : ImageView = requireView().findViewById(R.id.bgImageView)
                 bgImageView.visibility = View.VISIBLE
@@ -75,27 +64,8 @@ class PlaceFragment : Fragment() {
             }
         }
 
-
-
-//        viewModel.placeLiveData.observe(viewLifecycleOwner, Observer { result->
-//            val places = result.getOrNull()
-//            if(places != null)
-//            {
-//                recyclerView.visibility = View.VISIBLE
-//                val bgImageView : ImageView = requireView().findViewById(R.id.bgImageView)
-//                bgImageView.visibility = View.GONE
-//                viewModel.placeList.clear()
-//                viewModel.placeList.addAll(places)
-//                adapter.notifyDataSetChanged()
-//            }else
-//            {
-//                Toast.makeText(activity,"未能查询到任何地点",Toast.LENGTH_SHORT).show()
-//                result.exceptionOrNull()?.printStackTrace()
-//            }
-//            Log.d("Respository",result.toString())
-//        })
     }
-    fun searchPlace(content : String)
+    fun searchPlace(content : String) //传入参数为城市字符串
     {
         val TAG = "Request of city"
         QWeather.getGeoCityLookup(context,content,

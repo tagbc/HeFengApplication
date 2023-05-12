@@ -12,7 +12,7 @@ import com.HeFengweather.hefengapplication.R
 import com.HeFengweather.hefengapplication.ui.weather.WeatherActivity
 import com.qweather.sdk.bean.geo.GeoBean
 
-class PlaceAdapter(private val fragment: Fragment, private val placeList: List<GeoBean.LocationBean>) :
+class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: List<GeoBean.LocationBean>) :
     RecyclerView.Adapter<PlaceAdapter.ViewHolder>()
 {
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -22,13 +22,13 @@ class PlaceAdapter(private val fragment: Fragment, private val placeList: List<G
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.place_item, parent, false)
-//        val holder = ViewHolder(view)
-//        holder.itemView.setOnClickListener {
-//            val position = holder.adapterPosition
-//            val place = placeList[position]
-//            val activity = fragment.activity
+        val holder = ViewHolder(view)
+        holder.itemView.setOnClickListener {
+            val position = holder.adapterPosition
+            val place = placeList[position]
+            val activity = fragment.activity
 //            if (activity is WeatherActivity) {
-//                activity.findViewById<DrawerLayout>(R.id.drawerLayout).closeDrawers()
+//                activity?.findViewById<DrawerLayout>(R.id.drawerLayout)?.closeDrawers()
 //                activity.viewModel.locationLng = place.location.lng
 //                activity.viewModel.locationLat = place.location.lat
 //                activity.viewModel.placeName = place.name
@@ -43,8 +43,11 @@ class PlaceAdapter(private val fragment: Fragment, private val placeList: List<G
 //                activity?.finish()
 //            }
 //            fragment.viewModel.savePlace(place)
-//        }
-        return ViewHolder(view)
+            val intent = Intent(parent.context, WeatherActivity::class.java)
+            fragment.viewModel.saveplace = place
+            fragment.startActivity(intent)
+        }
+        return holder
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
