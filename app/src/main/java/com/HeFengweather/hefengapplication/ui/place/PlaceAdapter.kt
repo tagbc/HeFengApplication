@@ -44,6 +44,8 @@ class PlaceAdapter(private val fragment: PlaceFragment, private val placeList: L
 //            }
 //            fragment.viewModel.savePlace(place)
             val intent = Intent(parent.context, WeatherActivity::class.java)
+            intent.putExtra("query",place.name)
+            intent.putExtra("placeid",place.id)
             fragment.viewModel.saveplace = place
             fragment.startActivity(intent)
         }

@@ -1,0 +1,73 @@
+<!--12小时内气温布局-->
+<com.google.android.material.card.MaterialCardView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="360dp"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="15dp"
+    android:layout_marginTop="15dp"
+    android:layout_marginRight="15dp"
+    android:layout_marginBottom="15dp"
+    app:cardCornerRadius="12dp"
+    app:cardBackgroundColor="#fff"
+    app:cardElevation="20dp"
+    android:clickable="true"
+    app:rippleColor="#A8C0EC">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/card3_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_temp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12小时内温度"
+                android:textColor="#333"
+                android:textStyle="bold"
+                android:layout_marginLeft="5dp"/>
+
+        </LinearLayout>
+
+        <View
+            android:layout_height="1dp"
+            android:layout_width="354dp"
+            android:background="@color/black"
+            android:layout_below="@+id/card3_1"
+            android:layout_marginTop="10dp"/>
+
+        <LinearLayout
+            android:id="@+id/card3_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/card3_1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>
