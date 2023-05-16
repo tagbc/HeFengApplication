@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.HeFengweather.hefengapplication.R
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.qweather.sdk.bean.air.AirNowBean
@@ -25,6 +26,7 @@ import com.qweather.sdk.bean.weather.WeatherNowBean
 import com.qweather.sdk.view.HeConfig
 import com.qweather.sdk.view.QWeather
 import java.util.*
+import kotlin.concurrent.thread
 
 
 class WeatherActivity : AppCompatActivity() {
@@ -41,7 +43,13 @@ class WeatherActivity : AppCompatActivity() {
         val forecastlayout: LinearLayout = findViewById(R.id.forecastLayout)
 
         // TODO: 下拉刷新
-//        val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
+        val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+        swipeRefresh.setOnRefreshListener {
+            initdata()
+            Thread.sleep(500)
+            swipeRefresh.isRefreshing = false
+        }
 //      赋值
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
