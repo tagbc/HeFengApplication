@@ -2,9 +2,12 @@ package com.HeFengweather.hefengapplication.ui.weather
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -59,6 +62,23 @@ class WeatherActivity : AppCompatActivity() {
         initdata()
     }
 
+    private fun touch(text: TextView) {
+        text.movementMethod = ScrollingMovementMethod.getInstance()
+        text.setOnTouchListener(View.OnTouchListener { v, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                //通知父控件不要干扰,即屏蔽父控件的该事件以及该事件之后的一切action
+                v.parent.requestDisallowInterceptTouchEvent(true)
+            }
+            if (event.action == MotionEvent.ACTION_MOVE) {
+                //通知父控件不要干扰,即屏蔽父控件的该事件以及该事件之后的一切action
+                v.parent.requestDisallowInterceptTouchEvent(true)
+            }
+            if (event.action == MotionEvent.ACTION_UP) {
+                v.parent.requestDisallowInterceptTouchEvent(false)
+            }
+            false
+        })
+    }
     private fun initdata()
     {
         val toolbar: Toolbar = findViewById(R.id.toolBar)
@@ -89,6 +109,11 @@ class WeatherActivity : AppCompatActivity() {
         val visibility: TextView = findViewById(R.id.visibility)
         val visibilityInfo: TextView = findViewById(R.id.visibilityInfo)
         val airPresure: TextView = findViewById(R.id.airPresure)
+
+        touch(urayInfo)
+        touch(bodyTempInfo)
+        touch(humidityInfo)
+        touch(visibilityInfo)
 
 
         HeConfig.init("HE2305112021361191", "f922eb1c50c04dd093e6b9a50e240578")

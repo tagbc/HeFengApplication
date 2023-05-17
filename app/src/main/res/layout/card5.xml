@@ -71,7 +71,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="#333"
                         android:textStyle="bold"
-                        android:textSize="14dp"/>
+                        android:textSize="18dp"/>
 
                     <TextView
                         android:id="@+id/uryLevel"
@@ -79,7 +79,7 @@
                         android:layout_height="wrap_content"
                         android:textColor="#333"
                         android:textStyle="bold"
-                        android:textSize="14dp"/>
+                        android:textSize="18dp"/>
 
 
                         <TextView
@@ -88,8 +88,9 @@
                             android:layout_height="wrap_content"
                             android:textColor="#333"
                             android:textStyle="bold"
-                            android:textSize="22dp"
-                            android:layout_marginTop="5dp"/>
+                            android:textSize="16dp"
+                            android:layout_marginTop="5dp"
+                            android:scrollbars="vertical"/>
 
 
                 </LinearLayout>
@@ -472,7 +473,9 @@
                         android:textColor="#333"
                         android:textStyle="bold"
                         android:textSize="14dp"
-                        android:layout_marginTop="5dp"/>
+                        android:layout_marginTop="5dp"
+                        android:scrollbars="vertical"
+                        />
 
                 </LinearLayout>
 
@@ -635,7 +638,8 @@
                         android:textColor="#333"
                         android:textStyle="bold"
                         android:textSize="14dp"
-                        android:layout_marginTop="5dp"/>
+                        android:layout_marginTop="5dp"
+                        android:scrollbars="vertical"/>
 
                 </LinearLayout>
 
