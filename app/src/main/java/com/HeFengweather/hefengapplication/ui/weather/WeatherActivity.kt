@@ -1,7 +1,12 @@
 package com.HeFengweather.hefengapplication.ui.weather
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Bundle
+import android.provider.Settings
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,12 +16,18 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.HeFengweather.hefengapplication.R
+import com.baidu.location.LocationClient
+import com.baidu.location.LocationClientOption
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.qweather.sdk.bean.air.AirNowBean
 import com.qweather.sdk.bean.base.Code
@@ -34,11 +45,37 @@ import kotlin.concurrent.thread
 
 class WeatherActivity : AppCompatActivity() {
     val SkyList = ArrayList<Sky>()
+
     @SuppressLint("MissingInflatedId", "ResourceAsColor")
+    lateinit var mLocationClient: LocationClient
+    val myListener: MyLocationListener = MyLocationListener()
+    val option = LocationClientOption()
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
+        getLocation()
+        var requestOnce = true
+
+        getLocation()
+
+        if (!isGpsOpen()&&requestOnce) {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("开启\"定位服务\"，以获取当前位置天气").setPositiveButton("是",
+                object : DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface?, which: Int) {
+                        val settingsIntent =
+                            Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        startActivity(settingsIntent)
+                    }
+
+                }
+            )
+                .setNeutralButton("取消", null).show()
+            requestOnce=false
+        }
+
 //      获取id
         val toolbar: Toolbar = findViewById(R.id.toolBar)
         val collapsingToolbar: CollapsingToolbarLayout = findViewById(R.id.collapsingToolbar)
@@ -62,6 +99,30 @@ class WeatherActivity : AppCompatActivity() {
         initdata()
     }
 
+    private fun isGpsOpen(): Boolean {
+        val lm: LocationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+
+    private fun getLocation() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                1
+            )
+        }
+        option.setIsNeedAddress(true)
+        option.setNeedNewVersionRgc(true)
+        mLocationClient = LocationClient(applicationContext)
+        mLocationClient.registerLocationListener(myListener)
+        mLocationClient.setLocOption(option)
+        mLocationClient.start()
+    }
+
     private fun touch(text: TextView) {
         text.movementMethod = ScrollingMovementMethod.getInstance()
         text.setOnTouchListener(View.OnTouchListener { v, event ->
@@ -79,8 +140,8 @@ class WeatherActivity : AppCompatActivity() {
             false
         })
     }
-    private fun initdata()
-    {
+
+    private fun initdata() {
         val toolbar: Toolbar = findViewById(R.id.toolBar)
         val collapsingToolbar: CollapsingToolbarLayout = findViewById(R.id.collapsingToolbar)
         val skyBackground: ImageView = findViewById(R.id.skyBackground)
@@ -121,19 +182,18 @@ class WeatherActivity : AppCompatActivity() {
 
         val id = intent.getStringExtra("placeid")
         val TAG = "WeatherActivity"
-        QWeather.getWeatherNow(this,id,object : QWeather.OnResultWeatherNowListener{
+        QWeather.getWeatherNow(this, id, object : QWeather.OnResultWeatherNowListener {
             override fun onError(weatherBean: Throwable?) {
-                Log.i(TAG,"getWeatherNow error")
+                Log.i(TAG, "getWeatherNow error")
             }
 
             override fun onSuccess(weatherBean: WeatherNowBean?) {
-                if(Code.OK==weatherBean?.code)
-                {
+                if (Code.OK == weatherBean?.code) {
                     val now = weatherBean.now
                     runOnUiThread {
                         bodyTemp.text = now.feelsLike + "℃"
                         humidityPer.text = now.humidity
-                        humidityInfo.text = "目前露点温度为"+ now.dew + "℃"
+                        humidityInfo.text = "目前露点温度为" + now.dew + "℃"
                         visibility.text = now.vis + "公里"
                         airPresure.text = now.pressure + "百帕"
                         windWay.text = now.windDir + " 风向角度:" + now.wind360 + "°"
@@ -142,153 +202,127 @@ class WeatherActivity : AppCompatActivity() {
                         currentSky.text = now.text
 
                         var background = R.drawable.bg_partly_cloudy_night
-                        if(now.text.contains("晴"))
-                        {
+                        if (now.text.contains("晴")) {
                             background = R.drawable.bg_clear_day
-                        }
-                        else if(now.text.contains("云") || now.text.contains("阴"))
-                        {
+                        } else if (now.text.contains("云") || now.text.contains("阴")) {
                             background = R.drawable.bg_cloudy
-                        }
-                        else if(now.text.contains("雾"))
-                        {
+                        } else if (now.text.contains("雾")) {
                             background = R.drawable.bg_fog
-                        }
-                        else if(now.text.contains("雨"))
-                        {
+                        } else if (now.text.contains("雨")) {
                             background = R.drawable.bg_rain
-                        }
-                        else if(now.text.contains("雪"))
-                        {
+                        } else if (now.text.contains("雪")) {
                             background = R.drawable.bg_snow
-                        }
-                        else if(now.text.contains("风"))
-                        {
+                        } else if (now.text.contains("风")) {
                             background = R.drawable.bg_wind
                         }
 
                         skyBackground.setBackgroundResource(background)
 
                     }
-                }
-                else
-                {
+                } else {
                     val code = weatherBean?.code
-                    Log.i(TAG,"failed code $code")
+                    Log.i(TAG, "failed code $code")
                 }
             }
 
         })
 
-        QWeather.getWeather24Hourly(this,id,object :QWeather.OnResultWeatherHourlyListener{
+        QWeather.getWeather24Hourly(this, id, object : QWeather.OnResultWeatherHourlyListener {
             override fun onError(p0: Throwable?) {
-                Log.i(TAG,"getWeather24Hourly error")
+                Log.i(TAG, "getWeather24Hourly error")
             }
 
             override fun onSuccess(p0: WeatherHourlyBean?) {
-                if(p0?.code==Code.OK)
-                {
-                    runOnUiThread{
+                if (p0?.code == Code.OK) {
+                    runOnUiThread {
                         rainfallForecast.text = "预计下一个小时降水概率:" + p0.hourly[0].pop + "%"
                     }
-                }
-                else
-                {
+                } else {
                     val code = p0?.code
-                    Log.i(TAG,"failed code $code")
+                    Log.i(TAG, "failed code $code")
                 }
             }
 
         })
-        var indiceslist = listOf<IndicesType>(IndicesType.UV,IndicesType.COMF,IndicesType.PTFC)
+        var indiceslist = listOf<IndicesType>(IndicesType.UV, IndicesType.COMF, IndicesType.PTFC)
 
-        QWeather.getIndices1D(this,id, Lang.ZH_HANS,indiceslist,object :QWeather.OnResultIndicesListener{
-            override fun onError(p0: Throwable?) {
-                Log.i(TAG,"getIndices1D error")
-            }
+        QWeather.getIndices1D(
+            this,
+            id,
+            Lang.ZH_HANS,
+            indiceslist,
+            object : QWeather.OnResultIndicesListener {
+                override fun onError(p0: Throwable?) {
+                    Log.i(TAG, "getIndices1D error")
+                }
 
-            override fun onSuccess(p0: IndicesBean?) {
-                if(p0?.code==Code.OK)
-                {
-                    runOnUiThread{
-                        val dailyBean = p0.dailyList[0]
-                        val dailyBean2 = p0.dailyList[1]
-                        val dailyBean3 = p0.dailyList[2]
+                override fun onSuccess(p0: IndicesBean?) {
+                    if (p0?.code == Code.OK) {
+                        runOnUiThread {
+                            val dailyBean = p0.dailyList[0]
+                            val dailyBean2 = p0.dailyList[1]
+                            val dailyBean3 = p0.dailyList[2]
 
-                        urayData.text = dailyBean.level
-                        urayLevel.text = dailyBean.category
-                        urayInfo.text = dailyBean.text
+                            urayData.text = dailyBean.level
+                            urayLevel.text = dailyBean.category
+                            urayInfo.text = dailyBean.text
 
-                        bodyTempInfo.text = dailyBean2.text
+                            bodyTempInfo.text = dailyBean2.text
 
-                        visibilityInfo.text = dailyBean3.text
+                            visibilityInfo.text = dailyBean3.text
+                        }
+                    } else {
+                        val code = p0?.code
+                        Log.i(TAG, "failed code $code")
                     }
                 }
-                else
-                {
-                    val code = p0?.code
-                    Log.i(TAG,"failed code $code")
-                }
-            }
 
-        })
+            })
 
-        QWeather.getWeather7D(this,id,object : QWeather.OnResultWeatherDailyListener{
+        QWeather.getWeather7D(this, id, object : QWeather.OnResultWeatherDailyListener {
             override fun onError(p0: Throwable?) {
-                Log.i(TAG,"getWeather10D error")
+                Log.i(TAG, "getWeather10D error")
             }
 
             override fun onSuccess(p0: WeatherDailyBean?) {
-                if(p0?.code==Code.OK)
-                {
-                    runOnUiThread{
+                if (p0?.code == Code.OK) {
+                    runOnUiThread {
                         val dailylist = p0.daily
                         sunriseTime.text = dailylist[0].sunrise
                         sunsetTime.text = dailylist[0].sunset
 
-                        maxTemp.text = "最高气温" + dailylist[0].tempMax +"°"
-                        minTemp.text = "最低气温" + dailylist[0].tempMin +"°"
+                        maxTemp.text = "最高气温" + dailylist[0].tempMax + "°"
+                        minTemp.text = "最低气温" + dailylist[0].tempMin + "°"
 
-                        for(i in 0 until 7) {
-                            val view =  LayoutInflater.from(this@WeatherActivity).inflate(R.layout.forecastsky_item,
-                                forecastlayout, false)
+                        for (i in 0 until 7) {
+                            val view = LayoutInflater.from(this@WeatherActivity).inflate(
+                                R.layout.forecastsky_item,
+                                forecastlayout, false
+                            )
                             val time = view.findViewById(R.id.time) as TextView
                             val skyIcon = view.findViewById(R.id.skyIcon) as ImageView
                             val skyInfo = view.findViewById(R.id.skyInfo) as TextView
-                            val temperatureInfo = view.findViewById(R.id.temperatureInfo) as TextView
+                            val temperatureInfo =
+                                view.findViewById(R.id.temperatureInfo) as TextView
                             time.text = dailylist[i].fxDate
                             var ic = R.drawable.ic_clear_night
                             skyInfo.text = dailylist[i].textDay
                             var t = dailylist[i].textDay
-                            if(t.contains("云"))
-                            {
+                            if (t.contains("云")) {
                                 ic = R.drawable.ic_cloudy
-                            }
-                            else if(t.contains("晴"))
-                            {
+                            } else if (t.contains("晴")) {
                                 ic = R.drawable.ic_clear_day
-                            }
-                            else if(t.contains("雨"))
-                            {
+                            } else if (t.contains("雨")) {
                                 ic = R.drawable.ic_heavy_rain
-                            }
-                            else if(t.contains("雪"))
-                            {
+                            } else if (t.contains("雪")) {
                                 ic = R.drawable.ic_heavy_snow
-                            }
-                            else if(t.contains("雷"))
-                            {
+                            } else if (t.contains("雷")) {
                                 ic = R.drawable.ic_thunder_shower
-                            }
-                            else if(t.contains("霾")){
+                            } else if (t.contains("霾")) {
                                 ic = R.drawable.ic_heavy_haze
-                            }
-                            else if(t.contains("雾"))
-                            {
+                            } else if (t.contains("雾")) {
                                 ic = R.drawable.ic_fog
-                            }
-                            else if(t.contains("阴"))
-                            {
+                            } else if (t.contains("阴")) {
                                 ic = R.drawable.ic_partly_cloud_night
                             }
                             skyIcon.setImageResource(ic)
@@ -299,25 +333,22 @@ class WeatherActivity : AppCompatActivity() {
                         }
 
                     }
-                }
-                else
-                {
+                } else {
                     val code = p0?.code
-                    Log.i(TAG,"failed code $code")
+                    Log.i(TAG, "failed code $code")
                 }
             }
 
         })
 
-        QWeather.getAirNow(this,id,Lang.ZH_HANS,object : QWeather.OnResultAirNowListener{
+        QWeather.getAirNow(this, id, Lang.ZH_HANS, object : QWeather.OnResultAirNowListener {
             override fun onError(p0: Throwable?) {
-                Log.i(TAG,"getAirNow error")
+                Log.i(TAG, "getAirNow error")
             }
 
             override fun onSuccess(p0: AirNowBean?) {
-                if(p0?.code==Code.OK)
-                {
-                    runOnUiThread{
+                if (p0?.code == Code.OK) {
+                    runOnUiThread {
 
                         val now = p0.now
 
@@ -327,11 +358,9 @@ class WeatherActivity : AppCompatActivity() {
                         pm2_5Data.text = now.pm2p5
 
                     }
-                }
-                else
-                {
+                } else {
                     val code = p0?.code
-                    Log.i(TAG,"failed code $code")
+                    Log.i(TAG, "failed code $code")
                 }
             }
 
@@ -339,58 +368,42 @@ class WeatherActivity : AppCompatActivity() {
         })
 
         SkyList.clear()
-        QWeather.getWeather24Hourly(this,id,object : QWeather.OnResultWeatherHourlyListener{
+        QWeather.getWeather24Hourly(this, id, object : QWeather.OnResultWeatherHourlyListener {
             override fun onError(p0: Throwable?) {
-                Log.i(TAG,"getWeather24Hourly")
+                Log.i(TAG, "getWeather24Hourly")
             }
 
             override fun onSuccess(p0: WeatherHourlyBean?) {
-                if(p0?.code==Code.OK)
-                {
-                    runOnUiThread{
+                if (p0?.code == Code.OK) {
+                    runOnUiThread {
                         val hourly = p0.hourly
                         val calendar: Calendar = Calendar.getInstance()
                         var h = calendar[Calendar.HOUR_OF_DAY]
-                        for(i in 0 until 12)
-                        {
+                        for (i in 0 until 12) {
                             val hour = hourly[i]
                             h += 1
                             h %= 24
                             val str = h.toString() + ":00"
                             val t = hour.text
                             var ic = R.drawable.ic_clear_night
-                            if(t.contains("云"))
-                            {
+                            if (t.contains("云")) {
                                 ic = R.drawable.ic_cloudy
-                            }
-                            else if(t.contains("晴"))
-                            {
+                            } else if (t.contains("晴")) {
                                 ic = R.drawable.ic_clear_day
-                                if(h >= 18 || h <= 4) {
+                                if (h >= 18 || h <= 4) {
                                     ic = R.drawable.ic_clear_night
                                 }
-                            }
-                            else if(t.contains("雨"))
-                            {
+                            } else if (t.contains("雨")) {
                                 ic = R.drawable.ic_heavy_rain
-                            }
-                            else if(t.contains("雪"))
-                            {
+                            } else if (t.contains("雪")) {
                                 ic = R.drawable.ic_heavy_snow
-                            }
-                            else if(t.contains("雷"))
-                            {
+                            } else if (t.contains("雷")) {
                                 ic = R.drawable.ic_thunder_shower
-                            }
-                            else if(t.contains("霾")){
+                            } else if (t.contains("霾")) {
                                 ic = R.drawable.ic_heavy_haze
-                            }
-                            else if(t.contains("雾"))
-                            {
+                            } else if (t.contains("雾")) {
                                 ic = R.drawable.ic_fog
-                            }
-                            else if(t.contains("阴"))
-                            {
+                            } else if (t.contains("阴")) {
                                 ic = R.drawable.ic_partly_cloud_night
                             }
                             val s = Sky(str, ic, t)
@@ -402,11 +415,9 @@ class WeatherActivity : AppCompatActivity() {
                         val adapter = SkyAdapter(this@WeatherActivity, SkyList)
                         recyclerView.adapter = adapter
                     }
-                }
-                else
-                {
+                } else {
                     val code = p0?.code
-                    Log.i(TAG,"failed code $code")
+                    Log.i(TAG, "failed code $code")
                 }
             }
 
@@ -429,7 +440,6 @@ class WeatherActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
 
 
 }
