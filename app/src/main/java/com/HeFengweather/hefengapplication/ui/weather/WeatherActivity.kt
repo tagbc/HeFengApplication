@@ -6,6 +6,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.provider.Settings
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
@@ -50,17 +53,27 @@ class WeatherActivity : AppCompatActivity() {
     lateinit var mLocationClient: LocationClient
     val myListener: MyLocationListener = MyLocationListener()
     val option = LocationClientOption()
+    companion object{
+        var handler = object:Handler(Looper.getMainLooper()){
+            override fun handleMessage(msg: Message) {
+                when(msg.what){
+                    1->{
+                        Log.d("tag",msg.data.getString("district").toString())
+                    }
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
-        getLocation()
         var requestOnce = true
 
         getLocation()
-
         if (!isGpsOpen()&&requestOnce) {
+
             val builder = AlertDialog.Builder(this)
             builder.setMessage("开启\"定位服务\"，以获取当前位置天气").setPositiveButton("是",
                 object : DialogInterface.OnClickListener {
