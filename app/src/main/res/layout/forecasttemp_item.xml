@@ -1,4 +1,4 @@
-<!--12小时内气温的子布局-->
+<!--7日内气温的子布局-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
@@ -7,31 +7,31 @@
     android:layout_margin="10dp"
     android:layout_marginLeft="20dp">
 
+
     <TextView
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
+        android:layout_gravity="center_horizontal"
         android:textColor="#333"
         android:textSize="15dp"
         android:layout_marginBottom="10dp" />
 
     <ImageView
         android:id="@+id/skyIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
         android:layout_gravity="center_horizontal"/>
 
     <TextView
         android:id="@+id/nowtemp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
         android:textColor="#333"
         android:textStyle="bold"
-        android:textSize="15dp"
-        android:layout_marginLeft="5dp"/>
+        android:textSize="12dp" />
 
 
 </LinearLayout>

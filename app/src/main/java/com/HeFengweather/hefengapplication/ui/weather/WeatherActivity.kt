@@ -28,14 +28,17 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.HeFengweather.hefengapplication.HeFengweatherApplication
 import com.HeFengweather.hefengapplication.R
 import com.baidu.location.LocationClient
 import com.baidu.location.LocationClientOption
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.gson.Gson
 import com.qweather.sdk.bean.air.AirNowBean
 import com.qweather.sdk.bean.base.Code
 import com.qweather.sdk.bean.base.IndicesType
 import com.qweather.sdk.bean.base.Lang
+import com.qweather.sdk.bean.geo.GeoBean
 import com.qweather.sdk.bean.indices.IndicesBean
 import com.qweather.sdk.bean.weather.WeatherDailyBean
 import com.qweather.sdk.bean.weather.WeatherHourlyBean
@@ -53,12 +56,21 @@ class WeatherActivity : AppCompatActivity() {
     lateinit var mLocationClient: LocationClient
     val myListener: MyLocationListener = MyLocationListener()
     val option = LocationClientOption()
+    lateinit var placeId:String
+    lateinit var placeName:String
+
     companion object{
+        lateinit var weatherActivity : WeatherActivity
         var handler = object:Handler(Looper.getMainLooper()){
             override fun handleMessage(msg: Message) {
                 when(msg.what){
                     1->{
-                        Log.d("tag",msg.data.getString("district").toString())
+                        Log.d("tag",msg.data.getString("placeId").toString())
+                        Log.d("tag",msg.data.getString("placeName").toString())
+                        weatherActivity.placeId = msg.data.getString("placeId").toString()
+                        weatherActivity.placeName = msg.data.getString("placeName").toString()
+                        weatherActivity.initdata(weatherActivity.placeId,weatherActivity.placeName)
+
                     }
                 }
             }
@@ -66,13 +78,43 @@ class WeatherActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
+        HeConfig.init("HE2305112021361191", "f922eb1c50c04dd093e6b9a50e240578")
+        HeConfig.switchToDevService()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
-        var requestOnce = true
+        weatherActivity = this
+//      获取id
+        val toolbar: Toolbar = findViewById(R.id.toolBar)
+        val collapsingToolbar: CollapsingToolbarLayout = findViewById(R.id.collapsingToolbar)
 
-        getLocation()
-        if (!isGpsOpen()&&requestOnce) {
+        val forecastlayout: LinearLayout = findViewById(R.id.forecastLayout)
+
+        // TODO: 下拉刷新
+        val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+        swipeRefresh.setOnRefreshListener {
+            forecastlayout
+            initdata(placeId,placeName)
+            Thread.sleep(500)
+            swipeRefresh.isRefreshing = false
+        }
+//      赋值
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+        if(intent.getStringExtra("source")!=null)
+        {
+            initdata()
+        }
+
+    }
+
+    override fun onResume() {
+
+        super.onResume()
+
+        if (!isGpsOpen()) {
 
             val builder = AlertDialog.Builder(this)
             builder.setMessage("开启\"定位服务\"，以获取当前位置天气").setPositiveButton("是",
@@ -86,30 +128,13 @@ class WeatherActivity : AppCompatActivity() {
                 }
             )
                 .setNeutralButton("取消", null).show()
-            requestOnce=false
+
         }
 
-//      获取id
-        val toolbar: Toolbar = findViewById(R.id.toolBar)
-        val collapsingToolbar: CollapsingToolbarLayout = findViewById(R.id.collapsingToolbar)
-
-        val forecastlayout: LinearLayout = findViewById(R.id.forecastLayout)
-
-        // TODO: 下拉刷新
-        val swipeRefresh: SwipeRefreshLayout = findViewById(R.id.swipeRefresh)
-        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
-        swipeRefresh.setOnRefreshListener {
-            initdata()
-            Thread.sleep(500)
-            swipeRefresh.isRefreshing = false
+        if(intent.getStringExtra("source")==null)
+        {
+            getLocation()
         }
-//      赋值
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        collapsingToolbar.title = intent.getStringExtra("query")
-
-        initdata()
     }
 
     private fun isGpsOpen(): Boolean {
@@ -119,7 +144,7 @@ class WeatherActivity : AppCompatActivity() {
 
 
     private fun getLocation() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CALL_PHONE)
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
@@ -154,7 +179,7 @@ class WeatherActivity : AppCompatActivity() {
         })
     }
 
-    private fun initdata() {
+    private fun initdata(localid : String = "",localname : String = "") {
         val toolbar: Toolbar = findViewById(R.id.toolBar)
         val collapsingToolbar: CollapsingToolbarLayout = findViewById(R.id.collapsingToolbar)
         val skyBackground: ImageView = findViewById(R.id.skyBackground)
@@ -184,16 +209,26 @@ class WeatherActivity : AppCompatActivity() {
         val visibilityInfo: TextView = findViewById(R.id.visibilityInfo)
         val airPresure: TextView = findViewById(R.id.airPresure)
 
+
+
         touch(urayInfo)
         touch(bodyTempInfo)
         touch(humidityInfo)
         touch(visibilityInfo)
 
 
-        HeConfig.init("HE2305112021361191", "f922eb1c50c04dd093e6b9a50e240578")
-        HeConfig.switchToDevService()
 
-        val id = intent.getStringExtra("placeid")
+
+
+        var id = intent.getStringExtra("placeid")
+        collapsingToolbar.title = intent.getStringExtra("query")
+
+        if(intent.getStringExtra("source")==null)
+        {
+            id = localid
+            collapsingToolbar.title = localname
+        }
+
         val TAG = "WeatherActivity"
         QWeather.getWeatherNow(this, id, object : QWeather.OnResultWeatherNowListener {
             override fun onError(weatherBean: Throwable?) {
@@ -306,7 +341,7 @@ class WeatherActivity : AppCompatActivity() {
 
                         maxTemp.text = "最高气温" + dailylist[0].tempMax + "°"
                         minTemp.text = "最低气温" + dailylist[0].tempMin + "°"
-
+                        forecastlayout.removeAllViews()
                         for (i in 0 until 7) {
                             val view = LayoutInflater.from(this@WeatherActivity).inflate(
                                 R.layout.forecastsky_item,
@@ -343,6 +378,7 @@ class WeatherActivity : AppCompatActivity() {
                             var mint = dailylist[i].tempMin
                             temperatureInfo.text = mint + "°" + "~" + maxt + "°"
                             forecastlayout.addView(view)
+
                         }
 
                     }
@@ -436,11 +472,6 @@ class WeatherActivity : AppCompatActivity() {
 
         })
 
-
-    }
-
-
-    private fun refresh() {
 
     }
 

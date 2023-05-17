@@ -1,4 +1,4 @@
-<!--10日内气温的子布局-->
+<!--12小时内气温的子布局-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
