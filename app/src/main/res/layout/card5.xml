@@ -23,7 +23,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -111,7 +111,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -225,7 +225,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -302,7 +302,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -416,7 +416,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -495,7 +495,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -581,7 +581,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -659,7 +659,7 @@
             app:cardBackgroundColor="#fff"
             app:cardElevation="10dp"
             android:clickable="true"
-            app:rippleColor="#A8C0EC">
+            app:rippleColor="#E0FFFF">
 
             <RelativeLayout
                 android:layout_width="match_parent"

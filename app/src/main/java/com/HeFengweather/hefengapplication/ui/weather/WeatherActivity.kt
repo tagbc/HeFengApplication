@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.HeFengweather.hefengapplication.HeFengweatherApplication
 import com.HeFengweather.hefengapplication.R
+import com.HeFengweather.hefengapplication.ui.manager.ManagerActivity
 import com.baidu.location.LocationClient
 import com.baidu.location.LocationClientOption
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -478,7 +479,8 @@ class WeatherActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                val intent: Intent = Intent(this, ManagerActivity::class.java)
+                startActivity(intent)
                 return true
             }
         }

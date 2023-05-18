@@ -43,6 +43,16 @@
             android:value="vS713KVmFQLCFib6WvxWrlPWCKm2fjW0" >
         </meta-data>
 
+        <activity android:name=".ui.manager.ManagerActivity"
+            android:theme="@style/WeatherActivityTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote"> </service>
     </application>
 
