@@ -39,7 +39,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.HeFengweather.hefengapplication.HeFengweatherApplication
 import com.HeFengweather.hefengapplication.R
+
 import com.HeFengweather.hefengapplication.WeatherInfoService
+
+import com.HeFengweather.hefengapplication.ui.manager.ManagerActivity
+
 import com.baidu.location.LocationClient
 import com.baidu.location.LocationClientOption
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -68,17 +72,6 @@ class WeatherActivity : AppCompatActivity() {
     val option = LocationClientOption()
     lateinit var placeId:String
     lateinit var placeName:String
-    private val connection = object :ServiceConnection{
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            Log.d("tag","lgx")
-
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d("tag","lgx")
-        }
-
-    }
     companion object{
         lateinit var weatherActivity : WeatherActivity
         var handler = object:Handler(Looper.getMainLooper()){
@@ -319,6 +312,10 @@ class WeatherActivity : AppCompatActivity() {
 
             override fun onSuccess(p0: WeatherHourlyBean?) {
                 if (p0?.code == Code.OK) {
+                    val intent = Intent("com.HeFengWeather.hefengapplication.NEXT_HOUR_RAIN")
+                    intent.setPackage(packageName)
+                    if(p0.hourly[0].pop.toDouble()>=6)sendBroadcast(intent)
+                    Log.d("rain",p0.hourly[0].pop)
                     runOnUiThread {
                         rainfallForecast.text = "预计下一个小时降水概率:" + p0.hourly[0].pop + "%"
                     }
@@ -516,7 +513,8 @@ class WeatherActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                finish()
+                val intent: Intent = Intent(this, ManagerActivity::class.java)
+                startActivity(intent)
                 return true
             }
         }

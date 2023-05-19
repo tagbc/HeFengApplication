@@ -3,8 +3,6 @@ package com.HeFengweather.hefengapplication.ui.weather
 import android.os.Bundle
 import android.os.Message
 import android.util.Log
-import android.widget.Toast
-import com.HeFengweather.hefengapplication.BootCompleteReceiver
 import com.baidu.location.BDAbstractLocationListener
 import com.baidu.location.BDLocation
 import com.google.gson.Gson

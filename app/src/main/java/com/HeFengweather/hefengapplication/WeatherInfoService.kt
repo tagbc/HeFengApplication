@@ -76,7 +76,7 @@ class WeatherInfoService : Service() {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         notification.setContentTitle(intent.getStringExtra("placeName").toString()+"市")
         notification.setContentText(intent.getStringExtra("feelsLike")+"℃"+"  " + intent.getStringExtra("currentSky"))
-
+        notification.setGroup("group1").setGroupSummary(false)
         startForeground(notificationId, notification.build())
 
 

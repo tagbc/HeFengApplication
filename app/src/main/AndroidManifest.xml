@@ -32,11 +32,11 @@
             android:exported="true"></service>
 
         <receiver
-            android:name=".BootCompleteReceiver"
+            android:name=".RainWarningReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="com.HeFengWeather.hefengapplication.NEXT_HOUR_RAIN" />
             </intent-filter>
         </receiver>
 
@@ -58,10 +58,24 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="vS713KVmFQLCFib6WvxWrlPWCKm2fjW0" />
 
+<!--<<<<<<< HEAD-->
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
+<!--=======-->
+        <activity android:name=".ui.manager.ManagerActivity"
+            android:theme="@style/WeatherActivityTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote"> </service>
+<!--&gt;>>>>>> c4f3ec29b45d7431759dedb429b531c68eb4e730-->
     </application>
 
 </manifest>
