@@ -1,12 +1,20 @@
 package com.HeFengweather.hefengapplication.ui.weather
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.ComponentName
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.os.Message
 import android.provider.Settings
@@ -24,12 +32,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.HeFengweather.hefengapplication.HeFengweatherApplication
 import com.HeFengweather.hefengapplication.R
+import com.HeFengweather.hefengapplication.WeatherInfoService
 import com.baidu.location.LocationClient
 import com.baidu.location.LocationClientOption
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -58,7 +68,17 @@ class WeatherActivity : AppCompatActivity() {
     val option = LocationClientOption()
     lateinit var placeId:String
     lateinit var placeName:String
+    private val connection = object :ServiceConnection{
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Log.d("tag","lgx")
 
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.d("tag","lgx")
+        }
+
+    }
     companion object{
         lateinit var weatherActivity : WeatherActivity
         var handler = object:Handler(Looper.getMainLooper()){
@@ -83,6 +103,24 @@ class WeatherActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
         weatherActivity = this
+        requestNotification()
+        if (!isGpsOpen()) {
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("开启\"定位服务\"，以获取当前位置天气").setPositiveButton("是",
+                object : DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface?, which: Int) {
+                        val settingsIntent =
+                            Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        startActivity(settingsIntent)
+                    }
+                }
+            )
+                .setNeutralButton("取消", null).show()
+        }
+
+
+
+
 //      获取id
         val toolbar: Toolbar = findViewById(R.id.toolBar)
         val collapsingToolbar: CollapsingToolbarLayout = findViewById(R.id.collapsingToolbar)
@@ -103,9 +141,15 @@ class WeatherActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        if(intent.getStringExtra("source")!=null)
-        {
-            initdata()
+    }
+
+    private fun requestNotification() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Permission not yet granted, request it
+            ActivityCompat.requestPermissions(this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                2);
         }
 
     }
@@ -113,27 +157,11 @@ class WeatherActivity : AppCompatActivity() {
     override fun onResume() {
 
         super.onResume()
-
-        if (!isGpsOpen()) {
-
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage("开启\"定位服务\"，以获取当前位置天气").setPositiveButton("是",
-                object : DialogInterface.OnClickListener {
-                    override fun onClick(dialog: DialogInterface?, which: Int) {
-                        val settingsIntent =
-                            Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                        startActivity(settingsIntent)
-                    }
-
-                }
-            )
-                .setNeutralButton("取消", null).show()
-
-        }
-
         if(intent.getStringExtra("source")==null)
         {
             getLocation()
+        }else {
+            initdata()
         }
     }
 
@@ -211,11 +239,12 @@ class WeatherActivity : AppCompatActivity() {
 
 
 
+
+
         touch(urayInfo)
         touch(bodyTempInfo)
         touch(humidityInfo)
         touch(visibilityInfo)
-
 
 
 
@@ -230,6 +259,8 @@ class WeatherActivity : AppCompatActivity() {
         }
 
         val TAG = "WeatherActivity"
+        val intent = Intent(this,WeatherInfoService::class.java)
+
         QWeather.getWeatherNow(this, id, object : QWeather.OnResultWeatherNowListener {
             override fun onError(weatherBean: Throwable?) {
                 Log.i(TAG, "getWeatherNow error")
@@ -238,6 +269,12 @@ class WeatherActivity : AppCompatActivity() {
             override fun onSuccess(weatherBean: WeatherNowBean?) {
                 if (Code.OK == weatherBean?.code) {
                     val now = weatherBean.now
+                    intent.putExtra("placeName",placeName)
+                    intent.putExtra("feelsLike",now.feelsLike)
+                    intent.putExtra("currentSky",now.text)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startService(intent)
+                    }
                     runOnUiThread {
                         bodyTemp.text = now.feelsLike + "℃"
                         humidityPer.text = now.humidity
@@ -334,6 +371,7 @@ class WeatherActivity : AppCompatActivity() {
 
             override fun onSuccess(p0: WeatherDailyBean?) {
                 if (p0?.code == Code.OK) {
+
                     runOnUiThread {
                         val dailylist = p0.daily
                         sunriseTime.text = dailylist[0].sunrise

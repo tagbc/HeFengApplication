@@ -3,6 +3,8 @@ package com.HeFengweather.hefengapplication.ui.weather
 import android.os.Bundle
 import android.os.Message
 import android.util.Log
+import android.widget.Toast
+import com.HeFengweather.hefengapplication.BootCompleteReceiver
 import com.baidu.location.BDAbstractLocationListener
 import com.baidu.location.BDLocation
 import com.google.gson.Gson
@@ -22,7 +24,6 @@ class MyLocationListener: BDAbstractLocationListener() {
         msg.what=1
         val TAG = "GPS"
         val loacl  = city.toString() + district.toString()
-        Log.d("name",district)
         QWeather.getGeoCityLookup(
             WeatherActivity.weatherActivity,city.toString(),
             object : QWeather.OnResultGeoListener {
