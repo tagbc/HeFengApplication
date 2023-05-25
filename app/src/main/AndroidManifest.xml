@@ -25,7 +25,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.HeFengApplication"
-        tools:targetApi="31">
+        android:testOnly="false"
+        tools:targetApi="33">
         <service
             android:name=".WeatherInfoService"
             android:enabled="true"
@@ -65,13 +66,9 @@
             android:process=":remote" />
 <!--=======-->
         <activity android:name=".ui.manager.ManagerActivity"
-            android:theme="@style/WeatherActivityTheme"
+            android:theme="@style/Theme.HeFengApplication"
+            android:label="城市管理"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote"> </service>

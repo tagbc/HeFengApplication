@@ -66,12 +66,14 @@ import kotlin.concurrent.thread
 class WeatherActivity : AppCompatActivity() {
     val SkyList = ArrayList<Sky>()
 
+
     @SuppressLint("MissingInflatedId", "ResourceAsColor")
     lateinit var mLocationClient: LocationClient
     val myListener: MyLocationListener = MyLocationListener()
     val option = LocationClientOption()
     lateinit var placeId:String
     lateinit var placeName:String
+
     companion object{
         lateinit var weatherActivity : WeatherActivity
         var handler = object:Handler(Looper.getMainLooper()){
@@ -154,6 +156,8 @@ class WeatherActivity : AppCompatActivity() {
         {
             getLocation()
         }else {
+            placeName = intent.getStringExtra("query")!!
+            placeId = intent.getStringExtra("placeid")!!
             initdata()
         }
     }
@@ -514,6 +518,8 @@ class WeatherActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 val intent: Intent = Intent(this, ManagerActivity::class.java)
+                intent.putExtra("placeId",placeId)
+                intent.putExtra("placeName",placeName)
                 startActivity(intent)
                 return true
             }
