@@ -38,6 +38,7 @@ class MessageAdapter(val context: Context, val messageList: ArrayList<Message>) 
             intent.putExtra("placeid",place.placeId)
             intent.putExtra("source","ManagerActivity")
             context.startActivity(intent)
+
         }
 
         return holder

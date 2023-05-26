@@ -44,7 +44,8 @@
         <activity
             android:name=".ui.weather.WeatherActivity"
             android:exported="true"
-            android:theme="@style/WeatherActivityTheme">
+            android:theme="@style/WeatherActivityTheme"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -66,6 +67,7 @@
             android:process=":remote" />
 <!--=======-->
         <activity android:name=".ui.manager.ManagerActivity"
+
             android:theme="@style/Theme.HeFengApplication"
             android:label="城市管理"
             android:exported="true">

@@ -13,6 +13,7 @@ import com.qweather.sdk.view.QWeather
 
 class MyLocationListener: BDAbstractLocationListener() {
     override fun onReceiveLocation(p0: BDLocation) {
+
         val city = p0.city
         val province = p0.province
         val district = p0.district

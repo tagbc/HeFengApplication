@@ -59,6 +59,7 @@ import com.qweather.sdk.bean.weather.WeatherHourlyBean
 import com.qweather.sdk.bean.weather.WeatherNowBean
 import com.qweather.sdk.view.HeConfig
 import com.qweather.sdk.view.QWeather
+import org.w3c.dom.Text
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -73,7 +74,6 @@ class WeatherActivity : AppCompatActivity() {
     val option = LocationClientOption()
     lateinit var placeId:String
     lateinit var placeName:String
-
     companion object{
         lateinit var weatherActivity : WeatherActivity
         var handler = object:Handler(Looper.getMainLooper()){
@@ -90,6 +90,7 @@ class WeatherActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,6 +99,7 @@ class WeatherActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_weather)
         weatherActivity = this
+        Log.i("onCreate","1231")
         requestNotification()
         if (!isGpsOpen()) {
             val builder = AlertDialog.Builder(this)
@@ -209,6 +211,7 @@ class WeatherActivity : AppCompatActivity() {
         val collapsingToolbar: CollapsingToolbarLayout = findViewById(R.id.collapsingToolbar)
         val skyBackground: ImageView = findViewById(R.id.skyBackground)
         val currentSky: TextView = findViewById(R.id.currentSky)
+        val currentTemp: TextView = findViewById(R.id.currentTemp)
         val maxTemp: TextView = findViewById(R.id.maxTemp)
         val minTemp: TextView = findViewById(R.id.minTemp)
         val aqiData: TextView = findViewById(R.id.aqiData)
@@ -233,8 +236,6 @@ class WeatherActivity : AppCompatActivity() {
         val visibility: TextView = findViewById(R.id.visibility)
         val visibilityInfo: TextView = findViewById(R.id.visibilityInfo)
         val airPresure: TextView = findViewById(R.id.airPresure)
-
-
 
 
 
@@ -267,7 +268,7 @@ class WeatherActivity : AppCompatActivity() {
                 if (Code.OK == weatherBean?.code) {
                     val now = weatherBean.now
                     intent.putExtra("placeName",placeName)
-                    intent.putExtra("feelsLike",now.feelsLike)
+                    intent.putExtra("feelsLike", now.temp)
                     intent.putExtra("currentSky",now.text)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         startService(intent)
@@ -282,6 +283,7 @@ class WeatherActivity : AppCompatActivity() {
                         windRate.text = now.windSpeed + "公里/小时"
                         rainfallData.text = "过去二十四小时" + now.precip + "毫米"
                         currentSky.text = now.text
+                        currentTemp.text = "当前温度：" + now.temp + "°"
 
                         var background = R.drawable.bg_partly_cloudy_night
                         if (now.text.contains("晴")) {
@@ -318,7 +320,7 @@ class WeatherActivity : AppCompatActivity() {
                 if (p0?.code == Code.OK) {
                     val intent = Intent("com.HeFengWeather.hefengapplication.NEXT_HOUR_RAIN")
                     intent.setPackage(packageName)
-                    if(p0.hourly[0].pop.toDouble()>=6)sendBroadcast(intent)
+                    if(p0.hourly[0].pop.toDouble()>=50)sendBroadcast(intent)
                     Log.d("rain",p0.hourly[0].pop)
                     runOnUiThread {
                         rainfallForecast.text = "预计下一个小时降水概率:" + p0.hourly[0].pop + "%"
@@ -517,15 +519,17 @@ class WeatherActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                val intent: Intent = Intent(this, ManagerActivity::class.java)
+                val intent : Intent = Intent(this, ManagerActivity::class.java)
                 intent.putExtra("placeId",placeId)
                 intent.putExtra("placeName",placeName)
                 startActivity(intent)
+                finish()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
+
 
 
 }

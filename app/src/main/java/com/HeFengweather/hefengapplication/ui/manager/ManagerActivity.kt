@@ -110,6 +110,7 @@ class ManagerActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
 //            R.id.settings -> Toast.makeText(this, "You clicked Editor",

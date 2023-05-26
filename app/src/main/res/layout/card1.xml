@@ -58,6 +58,18 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/currentTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:textColor="#333"
+            android:textStyle="bold"
+            android:layout_below="@+id/currentSky"
+            android:layout_marginTop="40dp"
+            android:layout_marginBottom="20dp"
+            android:layout_centerHorizontal="true" />
+
     </RelativeLayout>
 
 </com.google.android.material.card.MaterialCardView>
