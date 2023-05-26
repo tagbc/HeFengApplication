@@ -26,6 +26,10 @@ class ManagerActivity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId", "Range")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        MessageAdapter.managerActivity = this
+
         setContentView(R.layout.activity_manager)
 
         val managerbar: Toolbar = findViewById(R.id.managerbar)

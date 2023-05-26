@@ -19,6 +19,10 @@ class MessageAdapter(val context: Context, val messageList: ArrayList<Message>) 
     val dpHelper = MyDatabaseHelper(context, "Weather.db", 1)
     val db = dpHelper.writableDatabase
 
+    companion object{
+        lateinit var managerActivity : ManagerActivity
+    }
+
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val messagename: TextView = view.findViewById(R.id.messagename)
@@ -38,7 +42,7 @@ class MessageAdapter(val context: Context, val messageList: ArrayList<Message>) 
             intent.putExtra("placeid",place.placeId)
             intent.putExtra("source","ManagerActivity")
             context.startActivity(intent)
-
+            managerActivity.finish()
         }
 
         return holder
